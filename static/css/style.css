@@ -1,0 +1,258 @@
+:root {
+    --primary-color: #6C5CE7;
+    --background-dark: #1A1A2E;
+    --card-bg: #212F45;
+    --text-primary: #FFFFFF;
+    --text-secondary: #A0A0A0;
+    --success-color: #00B894;
+    --danger-color: #FF7675;
+    --neutral-color: #FFD700;
+    --eth-color: #627EEA;
+    --bnb-color: #F3BA2F;
+    --sol-color: #00FFA3;
+    --border-radius: 10px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--background-dark);
+    color: var(--text-primary);
+    font-family: 'Arial', sans-serif;
+}
+
+.dashboard-header {
+    text-align: center;
+    padding: 20px;
+    background: linear-gradient(135deg, var(--primary-color), var(--background-dark));
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.dashboard-header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.dashboard-header p {
+    font-size: 1rem;
+    color: var(--text-secondary);
+}
+
+.crypto-cards-container {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 2rem;
+    padding: 2rem;
+}
+
+.card {
+    width: 195px;
+    height: 285px;
+    background: #313131;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    transition: 0.2s ease-in-out;
+    position: relative;
+}
+
+.img {
+    height: 30%;
+    position: absolute;
+    transition: 0.2s ease-in-out;
+    z-index: 1;
+}
+
+.textBox {
+    opacity: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    transition: 0.2s ease-in-out;
+    z-index: 2;
+}
+
+.textBox > .text {
+    font-weight: bold;
+}
+
+.textBox > .head {
+    font-size: 20px;
+}
+
+.textBox > .price {
+    font-size: 17px;
+}
+
+.textBox > span {
+    font-size: 12px;
+    color: lightgrey;
+}
+
+.card:hover > .textBox {
+    opacity: 1;
+}
+
+.card:hover > .img {
+    height: 65%;
+    filter: blur(7px);
+    animation: anim 3s infinite;
+}
+
+@keyframes anim {
+    0% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+    100% { transform: translateY(0); }
+}
+
+.card:hover {
+    transform: scale(1.04) rotate(-1deg);
+}
+
+.parameter-controls {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin: 2rem;
+    flex-wrap: wrap;
+}
+
+.toggle-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.parameter-toggle {
+    display: none;
+}
+
+.toggleSwitch {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 80px;
+    height: 40px;
+    background-color: rgb(199, 199, 199);
+    border-radius: 20px;
+    cursor: pointer;
+    transition-duration: .3s;
+}
+
+.toggleSwitch::after {
+    content: "";
+    position: absolute;
+    height: 40px;
+    width: 40px;
+    left: 0px;
+    background: conic-gradient(rgb(104, 104, 104),white,rgb(104, 104, 104),white,rgb(104, 104, 104));
+    border-radius: 50%;
+    transition-duration: .3s;
+    box-shadow: 5px 2px 7px rgba(8, 8, 8, 0.308);
+}
+
+.parameter-toggle:checked + .toggleSwitch::after {
+    transform: translateX(100%);
+}
+
+.parameter-toggle:checked + .toggleSwitch {
+    background-color: rgb(153, 197, 151);
+}
+
+.chart-container {
+    background-color: var(--card-bg);
+    border-radius: var(--border-radius);
+    padding: 20px;
+    margin: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.chart-container h2 {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.chart-description {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    text-align: center;
+}
+
+.stats-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.stat-item {
+    background-color: var(--card-bg);
+    padding: 1rem;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.time-range-selector {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1rem;
+}
+
+.time-range-selector button {
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.time-range-selector button.active {
+    background-color: var(--primary-color);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media screen and (max-width: 768px) {
+    .crypto-cards-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .parameter-controls {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .stats-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .time-range-selector {
+        flex-wrap: wrap;
+    }
+    
+    .chart-container {
+        margin: 10px;
+        padding: 10px;
+    }
+}
