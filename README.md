@@ -38,6 +38,7 @@ BlockchainFeeAnalyzer is an open-source tool providing real-time analytics for b
 
 # Clone repository
 git clone https://github.com/Kapriel-Talatinian/Crypto_Project
+
 cd Crypto_Project
 
 # Create virtual environment
