@@ -1,0 +1,120 @@
+<header>
+    <nav class="fixed w-full z-50 backdrop-blur-2xl bg-black/20 border-b border-white/10 transition-all duration-300">
+        <div class="container mx-auto px-4 py-2">
+            <div class="flex justify-between items-center">
+                <!-- Logo et titre -->
+                <div class="flex items-center space-x-3">
+                    <div class="relative">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 animate-pulse"></div>
+                            <h1 class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+                                CryptoFee Analytics
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+<!-- Navigation principale -->
+<div class="flex items-center space-x-6">
+    <!-- Boutons de navigation -->
+    <nav class="hidden md:flex items-center space-x-4">
+        <a href="{{ url_for('index') }}" 
+           class="px-4 py-2 rounded-lg transition-all duration-300 {% if request.endpoint == 'index' %}bg-purple-500/20 text-purple-300{% else %}hover:bg-white/5 text-white/80 hover:text-white{% endif %}">
+            Dashboard
+        </a>
+        <a href="{{ url_for('send') }}" 
+           class="px-4 py-2 rounded-lg transition-all duration-300 {% if request.endpoint == 'send' %}bg-purple-500/20 text-purple-300{% else %}hover:bg-white/5 text-white/80 hover:text-white{% endif %}">
+            Send Multiple
+        </a>
+        <a href="{{ url_for('portfolio') }}" 
+           class="px-4 py-2 rounded-lg transition-all duration-300 {% if request.endpoint == 'portfolio' %}bg-purple-500/20 text-purple-300{% else %}hover:bg-white/5 text-white/80 hover:text-white{% endif %}">
+            Portfolio
+        </a>
+        <a href="{{ url_for('analytics') }}" 
+           class="px-4 py-2 rounded-lg transition-all duration-300 {% if request.endpoint == 'analytics' %}bg-purple-500/20 text-purple-300{% else %}hover:bg-white/5 text-white/80 hover:text-white{% endif %}">
+            Analytics
+        </a>
+    </nav>
+
+    <!-- Menu mobile -->
+    <div class="md:hidden">
+        <button id="mobileMenuButton" class="p-2 rounded-lg hover:bg-white/5">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+            </svg>
+        </button>
+        <!-- Menu mobile dropdown -->
+        <div id="mobileMenu" class="hidden absolute top-full left-0 right-0 bg-gray-900/95 backdrop-blur-xl border-b border-white/10 mt-2">
+            <div class="container mx-auto px-4 py-4">
+                <nav class="flex flex-col space-y-2">
+                    <a href="{{ url_for('index') }}" class="px-4 py-2 rounded-lg {% if request.endpoint == 'index' %}bg-purple-500/20 text-purple-300{% else %}hover:bg-white/5{% endif %}">
+                        Dashboard
+                    </a>
+                    <a href="{{ url_for('send') }}" class="px-4 py-2 rounded-lg {% if request.endpoint == 'send' %}bg-purple-500/20 text-purple-300{% else %}hover:bg-white/5{% endif %}">
+                        Send Multiple
+                    </a>
+                    <a href="{{ url_for('portfolio') }}" class="px-4 py-2 rounded-lg {% if request.endpoint == 'portfolio' %}bg-purple-500/20 text-purple-300{% else %}hover:bg-white/5{% endif %}">
+                        Portfolio
+                    </a>
+                    <a href="{{ url_for('analytics') }}" class="px-4 py-2 rounded-lg {% if request.endpoint == 'analytics' %}bg-purple-500/20 text-purple-300{% else %}hover:bg-white/5{% endif %}">
+                        Analytics
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+                <!-- Partie centrale -->
+                <div class="flex items-center space-x-4">
+                    <!-- Sélecteur de refresh -->
+                    <div class="relative">
+                        <select id="refreshRate" class="appearance-none bg-black/30 text-sm rounded-lg px-3 py-1.5 border border-white/20 focus:border-purple-500 transition-all duration-300 text-white">
+                            <option value="5000">Live</option>
+                            <option value="900000">15 min</option>
+                            <option value="3600000">1h</option>
+                        </select>
+                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                            <svg class="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <!-- Indicateur Live -->
+                    <div id="liveIndicator" class="flex items-center space-x-1">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        </span>
+                        <span class="text-xs text-green-400">Live</span>
+                    </div>
+                </div>
+
+                <!-- Boutons Wallet -->
+                <div class="flex items-center space-x-3">
+                    <!-- Connect Wallet -->
+                    <button id="connectWallet" class="flex items-center space-x-2 px-4 py-1.5 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 hover:opacity-90 transition-all duration-300">
+                        <img src="https://cdn.iconscout.com/icon/free/png-256/metamask-2728406-2261817.png" 
+                             alt="MetaMask" 
+                             class="w-4 h-4">
+                        <span class="text-sm font-medium">Connect Wallet</span>
+                    </button>
+
+                    <!-- Disconnect Wallet (hidden by default) -->
+                    <button id="disconnectWallet" class="hidden flex items-center space-x-2 px-4 py-1.5 rounded-lg bg-gradient-to-r from-red-500 to-red-600 hover:opacity-90 transition-all duration-300">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                                  d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                        </svg>
+                        <span class="text-sm font-medium">Disconnect</span>
+                        <span class="text-xs px-2 py-0.5 bg-black/20 rounded-md" id="walletAddress"></span>
+                    </button>
+
+                    <!-- Indicateur de connexion -->
+                    <div class="flex items-center">
+                        <div class="w-1.5 h-1.5 rounded-full bg-red-500 transition-colors duration-300" id="connectionDot"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+</header>

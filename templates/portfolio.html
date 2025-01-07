@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoFee Analytics - Portfolio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 text-white min-h-screen backdrop-blur-lg">
+    {% include 'includes/header.html' %}
+
+    <main class="container mx-auto px-6 pt-20 pb-12">
+
+        <!-- Grid Layout pour Portfolio -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Résumé Portfolio -->
+            <div class="lg:col-span-3 bg-black/20 p-6 rounded-xl backdrop-blur-xl border border-white/10">
+                <h2 class="text-xl font-semibold mb-6">Résumé du Portfolio</h2>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="bg-black/30 p-4 rounded-lg">
+                        <p class="text-sm text-gray-400">Total Transactions</p>
+                        <p class="text-2xl font-semibold" id="totalTx">0</p>
+                    </div>
+                    <div class="bg-black/30 p-4 rounded-lg">
+                        <p class="text-sm text-gray-400">Total Gas Utilisé</p>
+                        <p class="text-2xl font-semibold" id="totalGas">0 ETH</p>
+                    </div>
+                    <div class="bg-black/30 p-4 rounded-lg">
+                        <p class="text-sm text-gray-400">Économies Réalisées</p>
+                        <p class="text-2xl font-semibold text-green-500" id="totalSavings">0 USD</p>
+                    </div>
+                    <div class="bg-black/30 p-4 rounded-lg">
+                        <p class="text-sm text-gray-400">Score d'Optimisation</p>
+                        <p class="text-2xl font-semibold text-purple-500" id="optimizationScore">0%</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Historique des Transactions -->
+            <div class="lg:col-span-2 bg-black/20 p-6 rounded-xl backdrop-blur-xl border border-white/10">
+                <h2 class="text-xl font-semibold mb-6">Historique des Transactions</h2>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="text-left border-b border-gray-800">
+                                <th class="pb-3 font-medium text-gray-400">Date</th>
+                                <th class="pb-3 font-medium text-gray-400">Blockchain</th>
+                                <th class="pb-3 font-medium text-gray-400">Adresse</th>
+                                <th class="pb-3 font-medium text-gray-400">Montant</th>
+                                <th class="pb-3 font-medium text-gray-400">Gas</th>
+                                <th class="pb-3 font-medium text-gray-400">Statut</th>
+                            </tr>
+                        </thead>
+                        <tbody id="transactionHistory">
+                            <!-- Les transactions seront ajoutées ici dynamiquement -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Sidebar Analytics -->
+            <div class="space-y-6">
+                <!-- Distribution par Blockchain -->
+                <div class="bg-black/20 p-6 rounded-xl backdrop-blur-xl border border-white/10">
+                    <h3 class="text-lg font-semibold mb-4">Distribution par Blockchain</h3>
+                    <div id="blockchainDistribution" class="h-64">
+                        <!-- Chart sera injecté ici -->
+                    </div>
+                </div>
+
+                <!-- Gas Usage Trends -->
+                <div class="bg-black/20 p-6 rounded-xl backdrop-blur-xl border border-white/10">
+                    <h3 class="text-lg font-semibold mb-4">Tendances Gas Usage</h3>
+                    <div id="gasUsageTrend" class="h-64">
+                        <!-- Chart sera injecté ici -->
+                    </div>
+                </div>
+
+                <!-- Recommendations -->
+                <div class="bg-black/20 p-6 rounded-xl backdrop-blur-xl border border-white/10">
+                    <h3 class="text-lg font-semibold mb-4">Recommandations</h3>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-black/30 rounded-lg">
+                            <h4 class="font-medium text-green-500">Opportunité d'Économie</h4>
+                            <p class="text-sm text-gray-400 mt-1">Utiliser Solana pour les petites transactions pourrait réduire vos frais de 90%</p>
+                        </div>
+                        <div class="p-4 bg-black/30 rounded-lg">
+                            <h4 class="font-medium text-yellow-500">Timing Optimization</h4>
+                            <p class="text-sm text-gray-400 mt-1">Les frais ETH sont généralement plus bas le dimanche</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    {% include 'includes/footer.html' %}
+
+    <script src="{{ url_for('static', filename='js/portfolio.js') }}"></script>
+</body>
+</html>

@@ -126,6 +126,34 @@ def analyze_fee_patterns(df):
 def index():
     return render_template('index.html')
 
+@app.route('/send')
+def send():
+    return render_template('send.html')
+
+@app.route('/portfolio')
+def portfolio():
+    return render_template('portfolio.html')
+
+@app.route('/analytics')
+def analytics():
+    return render_template('analytics.html')
+
+@app.route('/documentation')
+def documentation():
+    return render_template('documentation.html')
+
+@app.route('/FAQ')
+def faq():
+    return render_template('faq.html')
+
+@app.route('/guide')
+def guide():
+    return render_template('guide.html')
+
+@app.route('/api')
+def api():
+    return render_template('api.html')
+
 @app.route('/get_data')
 def get_data():
     try:
@@ -303,4 +331,4 @@ def get_data():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5001)

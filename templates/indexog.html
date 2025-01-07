@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoFee Analytics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-gray-800 text-white min-h-screen">
+    <!-- Navbar -->
+    <nav class="fixed w-full z-50 backdrop-blur-md bg-gray-900/90 border-b border-gray-800">
+        <div class="container mx-auto px-4 py-3">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center space-x-4">
+                    <div class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500">
+                        CryptoFee Analytics
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <select id="refreshRate" class="bg-gray-800 text-sm rounded-lg px-2 py-1 border border-gray-700">
+                            <option value="5000">Live</option>
+                            <option value="900000">15 min</option>
+                            <option value="3600000">1h</option>
+                        </select>
+                        <span id="liveIndicator" class="live-pulse px-2 py-1 rounded-full bg-green-500/20 text-green-400 text-xs">
+                            Live
+                        </span>
+                        <button id="connectWallet" class="bg-gradient-to-r from-indigo-500 to-purple-500 px-4 py-2 rounded-lg flex items-center space-x-2 hover:opacity-90 transition-opacity">
+                            <img src="https://cdn.iconscout.com/icon/free/png-256/metamask-2728406-2261817.png" alt="MetaMask" class="w-5 h-5">
+                            <span>Connect Wallet</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button id="darkModeToggle" class="p-2 rounded-full hover:bg-gray-800 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 pt-24">
+        <!-- Transaction Sections -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Import CSV Section -->
+            <section class="bg-gray-800/50 p-6 rounded-xl backdrop-blur-sm">
+                <h2 class="text-xl font-semibold mb-4">Import CSV</h2>
+                <div class="space-y-4">
+                    <input type="file" id="csvFile" accept=".csv" 
+                           class="block w-full text-sm text-gray-400
+                           file:mr-4 file:py-2 file:px-4
+                           file:rounded-full file:border-0
+                           file:text-sm file:font-semibold
+                           file:bg-indigo-500 file:text-white
+                           hover:file:bg-indigo-600">
+                    <div id="csvPreview" class="overflow-x-auto bg-gray-900/50 rounded-lg"></div>
+                </div>
+            </section>
+
+            <!-- Manual Transaction Section -->
+            <section class="bg-gray-800/50 p-6 rounded-xl backdrop-blur-sm">
+                <h2 class="text-xl font-semibold mb-4">Transaction Manuelle</h2>
+                <form id="manualForm" class="space-y-4">
+                    <div class="space-y-2">
+                        <label for="name" class="block text-sm font-medium">Nom</label>
+                        <input type="text" id="name" required 
+                               class="w-full bg-gray-900/50 rounded-lg px-4 py-2 border border-gray-700">
+                    </div>
+                    <div class="space-y-2">
+                        <label for="firstname" class="block text-sm font-medium">Prénom</label>
+                        <input type="text" id="firstname" required 
+                               class="w-full bg-gray-900/50 rounded-lg px-4 py-2 border border-gray-700">
+                    </div>
+                    <div class="space-y-2">
+                        <label for="salary" class="block text-sm font-medium">Montant</label>
+                        <input type="number" id="salary" required 
+                               class="w-full bg-gray-900/50 rounded-lg px-4 py-2 border border-gray-700">
+                    </div>
+                    <div class="space-y-2">
+                        <label for="blockchain" class="block text-sm font-medium">Blockchain</label>
+                        <select id="blockchain" required 
+                                class="w-full bg-gray-900/50 rounded-lg px-4 py-2 border border-gray-700">
+                            <option value="ethereum">Ethereum</option>
+                            <option value="bnb">BNB Chain</option>
+                            <option value="solana">Solana</option>
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label for="address" class="block text-sm font-medium">Adresse Wallet</label>
+                        <input type="text" id="address" required 
+                               class="w-full bg-gray-900/50 rounded-lg px-4 py-2 border border-gray-700">
+                    </div>
+                    <button type="submit" 
+                            class="w-full bg-gradient-to-r from-indigo-500 to-purple-500 py-2 rounded-lg hover:opacity-90 transition-opacity">
+                        Envoyer Transaction
+                    </button>
+                </form>
+            </section>
+        </div>
+
+        <!-- Network Status -->
+        <div class="network-status" id="networkStatus"></div>
+
+        
+    <!-- Main Content -->
+    <main class="pt-20 px-4 pb-8">
+        <div class="container mx-auto">
+            <!-- Quick Stats -->
+            <!-- ETH Gas Stats -->
+<div class="glass-card p-6">
+    <div class="flex justify-between items-start">
+        <div>
+            <h3 class="text-gray-400 text-sm font-medium">ETH Gas</h3>
+            <p class="text-3xl font-bold stat-value mt-2" data-stat="eth_gas">-</p>
+        </div>
+        <span class="text-green-400" data-stat="eth_gasTrend">-</span>
+    </div>
+    <div class="mt-4 h-1 bg-gray-700 rounded">
+        <div class="h-1 bg-indigo-500 rounded animate-pulse" style="width: 70%"></div>
+    </div>
+</div>
+
+<!-- BNB Gas Stats -->
+<div class="glass-card p-6">
+    <div class="flex justify-between items-start">
+        <div>
+            <h3 class="text-gray-400 text-sm font-medium">BNB Gas</h3>
+            <p class="text-3xl font-bold stat-value mt-2" data-stat="bnb_gas">-</p>
+        </div>
+        <span class="text-red-400" data-stat="bnb_gasTrend">-</span>
+    </div>
+    <div class="mt-4 h-1 bg-gray-700 rounded">
+        <div class="h-1 bg-yellow-500 rounded animate-pulse" style="width: 45%"></div>
+    </div>
+</div>
+
+<!-- SOL TPS Stats -->
+<div class="glass-card p-6">
+    <div class="flex justify-between items-start">
+        <div>
+            <h3 class="text-gray-400 text-sm font-medium">SOL TPS</h3>
+            <p class="text-3xl font-bold stat-value mt-2" data-stat="sol_tps">-</p>
+        </div>
+        <span class="text-green-400" data-stat="sol_tpsTrend">-</span>
+    </div>
+    <div class="mt-4 h-1 bg-gray-700 rounded">
+        <div class="h-1 bg-purple-500 rounded animate-pulse" style="width: 85%"></div>
+    </div>
+</div>
+            <!-- Main Dashboard -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2">
+                    <!-- Time Range Selection -->
+                    <div class="glass-card p-4 mb-6">
+                        <div class="flex justify-center space-x-4">
+                            <button data-timerange="24h" class="px-6 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700">24H</button>
+                            <button data-timerange="7d" class="px-6 py-2 rounded-lg bg-gray-700 hover:bg-gray-600">7D</button>
+                            <button data-timerange="30d" class="px-6 py-2 rounded-lg bg-gray-700 hover:bg-gray-600">30D</button>
+                        </div>
+                    </div>
+
+                    <!-- All Charts -->
+                    <div class="space-y-6">
+                        <div class="glass-card p-6">
+                            <div id="mainChart" class="h-[300px]"></div>
+                        </div>
+
+                        <div class="glass-card p-6">
+                            <div id="volumeChart" class="h-[300px]"></div>
+                        </div>
+
+                        <div class="glass-card p-6">
+                            <div id="hourlyChart" class="h-[300px]"></div>
+                        </div>
+
+                        <div class="glass-card p-6">
+                            <div id="trendChart" class="h-[300px]"></div>
+                        </div>
+
+                        <div class="glass-card p-6">
+                            <div id="correlationChart" class="h-[300px]"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="space-y-6">
+                    <!-- Network Status -->
+                    <div class="glass-card p-6">
+                        <h2 class="text-xl font-semibold mb-4">Network Status</h2>
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between">
+                                <span>Ethereum</span>
+                                <span class="px-2 py-1 rounded-full bg-green-500/20 text-green-400 text-sm">Active</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span>Binance Smart Chain</span>
+                                <span class="px-2 py-1 rounded-full bg-green-500/20 text-green-400 text-sm">Active</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <span>Solana</span>
+                                <span class="px-2 py-1 rounded-full bg-green-500/20 text-green-400 text-sm">Active</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+
+                    <!-- Predictions -->
+                    <div class="glass-card p-6">
+                        <h2 class="text-xl font-semibold mb-4">Prédictions</h2>
+                        <div id="predictions" class="space-y-4">
+                            <!-- Predictions will be injected here -->
+                        </div>
+                    </div>
+
+                    <!-- Best Option Box -->
+                    <div class="glass-card p-6">
+                        <h2 class="text-xl font-semibold mb-4">Meilleure Option</h2>
+                        <div id="bestOption" class="space-y-4">
+                            <!-- Best option will be injected here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="mt-8 py-6 text-center text-gray-400">
+        <p class="text-sm">© 2025 CryptoFee Analytics</p>
+    </footer>
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

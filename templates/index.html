@@ -3,394 +3,325 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blockchain Fee Analytics Dashboard</title>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>CryptoFee Analytics</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <style>
-        .dashboard-card {
-    background: rgb(31, 41, 55);  /* ou utilise #1f2937 */
-    border-radius: 15px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    margin-bottom: 1.5rem;
-}
-
-        .feature-coming-soon {
-            position: relative;
-        }
-
-        .feature-coming-soon::after {
-            content: "Bientôt disponible";
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            background: #4CAF50;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 0.7rem;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        .live-indicator {
-            animation: pulse 2s infinite;
-        }
-
-        .plotly-graph-div {
-            margin: 2rem 0;
-        }
-
-        /* Ajout d'espacement supplémentaire */
-        .content-section {
-            margin-bottom: 3rem;
-        }
-
-        .stats-card {
-            min-height: 120px;
-        }
-
-        .control-panel {
-            margin-bottom: 2.5rem;
-        }
-
-        /* Ajustements pour les graphiques */
-        #mainChart, #volumeChart {
-            margin: 2rem 0;
-            min-height: 400px;
-        }
-
-        /* Meilleur espacement pour les boutons */
-        .action-button {
-            margin: 0.5rem 0;
-            padding: 0.75rem 1rem;
-        }
-    </style>
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Ajout de Three.js pour les animations 3D -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Ajout de GSAP pour les animations fluides -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.7.1/gsap.min.js"></script>
+    <!-- Ajout de Chart.js pour des graphiques alternatifs -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-gray-900 text-white min-h-screen">
-    <!-- Navbar avec plus d'espace -->
-    <nav class="bg-gray-800 p-6 fixed w-full z-50">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-6">
-                <h1 class="text-2xl font-bold">Blockchain Fee Analytics</h1>
+<body class="bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 text-white min-h-screen backdrop-blur-lg">
+    {% include 'includes/header.html' %}
+
+<main class="container mx-auto px-6 pt-28 pb-12 relative z-10">
+    <!-- Section des transactions avec effet 3D -->
+
+                    <!-- Prévisualisation avec animation -->
+                    <div id="csvPreview" 
+                         class="mt-6 overflow-hidden rounded-xl bg-black/30 border border-white/10 
+                                transition-all duration-300 max-h-[300px] overflow-y-auto">
+                        <!-- Le contenu sera injecté ici dynamiquement -->
+                    </div>
+                </div>
+
+                <!-- Indicateur de statut -->
+                <div id="uploadStatus" class="flex items-center justify-center space-x-2 h-8">
+                    <!-- Status will be injected here -->
+                </div>
             </div>
-            <div class="flex items-center space-x-6">
-                <button id="darkModeToggle" class="p-3 rounded-full hover:bg-gray-700">
-                    <span class="material-icons">dark_mode</span>
-                </button>
-                <button class="bg-blue-500 hover:bg-blue-600 px-6 py-3 rounded-lg flex items-center">
-                    <span class="material-icons mr-2">account_circle</span>
-                    Connexion
-                </button>
+        </section>
+       
+    <!-- Dashboard Section -->
+    <div class="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Stats Cards -->
+        <div class="lg:col-span-3 grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- ETH Stats Card -->
+            <div class="bg-black/20 p-6 rounded-2xl backdrop-blur-xl border border-white/10 group hover:bg-black/30 transition-all duration-300">
+                <div class="flex justify-between items-start">
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-2">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiI+PHBhdGggZmlsbD0iIzYyN0VFQSIgZD0iTTE2IDMyQzcuMTYzIDMyIDAgMjQuODM3IDAgMTZTNy4xNjMgMCAxNiAwczE2IDcuMTYzIDE2IDE2LTcuMTYzIDE2LTE2IDE2em03Ljk5NC0xNS43NDNMMTYuNDk4IDRsLTcuNDggMTIuMjU3TDE2LjQ5OCAxOS41bDcuNDk2LTMuMjQzem0tNy45OSA0LjM2M0w3Ljk5NiAxNi4yNTdsMy4zNDggNS41IDQuNjYtMS45Mzd6Ii8+PC9zdmc+" alt="ETH" class="w-5 h-5">
+                            <h3 class="text-white/80 font-medium">ETH Gas</h3>
+                        </div>
+                        <div class="flex items-baseline space-x-2">
+                            <p class="text-3xl font-bold stat-value" data-stat="eth_gas">-</p>
+                            <span class="text-sm text-white/60">GWEI</span>
+                        </div>
+                    </div>
+                    <div class="stat-trend" data-trend="eth_gasTrend">
+                        <!-- Trend indicator will be injected here -->
+                    </div>
+                </div>
+                <div class="mt-4 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-blue-500 to-purple-500 rounded-full w-0 transition-all duration-1000"></div>
+                </div>
+            </div>
+
+            <!-- BNB Stats Card -->
+            <div class="bg-black/20 p-6 rounded-2xl backdrop-blur-xl border border-white/10 group hover:bg-black/30 transition-all duration-300">
+                <div class="flex justify-between items-start">
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-2">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiI+PHBhdGggZmlsbD0iI0YzQkEyRiIgZD0iTTE2IDMyQzcuMTYzIDMyIDAgMjQuODM3IDAgMTZTNy4xNjMgMCAxNiAwczE2IDcuMTYzIDE2IDE2LTcuMTYzIDE2LTE2IDE2em0tLjY1NC03LjQyTDkuOSAxOS4xMzZsMS4zNDctMS4zNDcgNC4xIDQuMDk4IDQuMDk4LTQuMDk4IDEuMzQ3IDEuMzQ3LTUuNDQ2IDUuNDQ0em0wLTcuMzY0TDkuOSAxMS43NzJsMS4zNDctMS4zNDcgNC4xIDQuMDk4IDQuMDk4LTQuMDk4IDEuMzQ3IDEuMzQ3LTUuNDQ2IDUuNDQ0eiIvPjwvc3ZnPg==" alt="BNB" class="w-5 h-5">
+                            <h3 class="text-white/80 font-medium">BNB Price</h3>
+                        </div>
+                        <div class="flex items-baseline space-x-2">
+                            <p class="text-3xl font-bold stat-value" data-stat="bnb_price">-</p>
+                            <span class="text-sm text-white/60">USD</span>
+                        </div>
+                    </div>
+                    <div class="stat-trend" data-trend="bnb_priceTrend">
+                        <!-- Trend indicator will be injected here -->
+                    </div>
+                </div>
+                <div class="mt-4 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full w-0 transition-all duration-1000"></div>
+                </div>
+            </div>
+
+            <!-- SOL Stats Card -->
+            <div class="bg-black/20 p-6 rounded-2xl backdrop-blur-xl border border-white/10 group hover:bg-black/30 transition-all duration-300">
+                <div class="flex justify-between items-start">
+                    <div class="space-y-2">
+                        <div class="flex items-center space-x-2">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiI+PHBhdGggZmlsbD0iIzAwRkZBMyIgZD0iTTE2IDMyQzcuMTYzIDMyIDAgMjQuODM3IDAgMTZTNy4xNjMgMCAxNiAwczE2IDcuMTYzIDE2IDE2LTcuMTYzIDE2LTE2IDE2em0yLjUwNC0xNi4yMzhsLTQuNzEgNC43MUw4LjIzOCAxNC45MmwxLjU3LTEuNTcgNC43MSA0LjcxIDQuNzEtNC43MSAxLjU3IDEuNTctNi4yOCA2LjI4LTEuNTctMS41Ny00LjcxLTQuNzEgMS41Ny0xLjU3IDQuNzEgNC43MSA0LjcxLTQuNzEgMS41NyAxLjU3eiIvPjwvc3ZnPg==" alt="SOL" class="w-5 h-5">
+                            <h3 class="text-white/80 font-medium">SOL TPS</h3>
+                        </div>
+                        <div class="flex items-baseline space-x-2">
+                            <p class="text-3xl font-bold stat-value" data-stat="sol_tps">-</p>
+                            <span class="text-sm text-white/60">TPS</span>
+                        </div>
+                    </div>
+                    <div class="stat-trend" data-trend="sol_tpsTrend">
+                        <!-- Trend indicator will be injected here -->
+                    </div>
+                </div>
+                <div class="mt-4 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    <div class="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full w-0 transition-all duration-1000"></div>
+                </div>
             </div>
         </div>
-    </nav>
 
-    <!-- Main Content avec plus d'espace -->
-    <main class="pt-28 pb-12 px-6">
-        <div class="container mx-auto">
-            <!-- Controls Section -->
-            <div class="control-panel grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="dashboard-card p-6">
-                    <label class="block text-sm font-medium mb-3">Période d'analyse</label>
-                    <select id="timeRange" class="w-full bg-gray-700 rounded-lg p-3">
-                        <option value="24h">24 heures</option>
-                        <option value="7d">7 jours</option>
-                        <option value="30d">30 jours</option>
-                        <option value="1y">1 an</option>
-                    </select>
-                </div>
-                <div class="dashboard-card p-6">
-                    <label class="block text-sm font-medium mb-3">Blockchains</label>
-                    <div class="flex flex-wrap gap-4">
-                        <label class="inline-flex items-center">
-                            <input type="checkbox" checked class="form-checkbox h-5 w-5" value="ETH">
-                            <span class="ml-2">Ethereum</span>
-                        </label>
-                        <label class="inline-flex items-center">
-                            <input type="checkbox" checked class="form-checkbox h-5 w-5" value="BNB">
-                            <span class="ml-2">Binance</span>
-                        </label>
-                        <label class="inline-flex items-center">
-                            <input type="checkbox" checked class="form-checkbox h-5 w-5" value="SOL">
-                            <span class="ml-2">Solana</span>
-                        </label>
+        <!-- Time Range Selection avec effet glassmorphism -->
+        <div class="lg:col-span-3 bg-black/20 p-4 rounded-2xl backdrop-blur-xl border border-white/10">
+            <div class="flex justify-center space-x-4">
+                <button data-timerange="24h" 
+                        class="px-6 py-2 rounded-xl bg-purple-500/20 hover:bg-purple-500/40 border border-purple-500/50 
+                               transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500/50">24H</button>
+                <button data-timerange="7d"  
+                        class="px-6 py-2 rounded-xl bg-black/20 hover:bg-white/10 border border-white/10 
+                               transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/20">7D</button>
+                <button data-timerange="30d" 
+                        class="px-6 py-2 rounded-xl bg-black/20 hover:bg-white/10 border border-white/10 
+                               transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/20">30D</button>
+            </div>
+        </div>
+        <!-- Main Charts Section -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Chart Container avec effet glassmorphism -->
+            <div class="bg-black/20 p-6 rounded-2xl backdrop-blur-xl border border-white/10 transition-all duration-300 hover:bg-black/30">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-lg font-semibold">Frais en Temps Réel</h3>
+                    <div class="flex items-center space-x-2">
+                     
                     </div>
                 </div>
-                <div class="dashboard-card p-6">
-                    <label class="block text-sm font-medium mb-3">Mode de visualisation</label>
-                    <select id="viewMode" class="w-full bg-gray-700 rounded-lg p-3">
-                        <option value="standard">Standard</option>
-                        <option value="advanced">Avancé</option>
-                        <option value="comparison">Comparaison</option>
-                    </select>
+                <div id="mainChart" class="h-[400px] relative group">
+                    <!-- Chart will be rendered here -->
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                 </div>
-                <div class="dashboard-card p-6">
-                    <label class="block text-sm font-medium mb-3">Actualisation</label>
-                    <div class="flex items-center justify-between">
-                        <select id="refreshRate" class="w-2/3 bg-gray-700 rounded-lg p-3">
-                            <option value="5">5 secondes</option>
-                            <option value="30">30 secondes</option>
-                            <option value="60">1 minute</option>
-                        </select>
-                        <div class="live-indicator flex items-center ml-4">
-                            <span class="h-3 w-3 bg-green-500 rounded-full mr-2"></span>
-                            <span class="text-sm">Live</span>
+            </div>
+
+            <!-- Volume Chart -->
+            <div class="bg-black/20 p-6 rounded-2xl backdrop-blur-xl border border-white/10 transition-all duration-300 hover:bg-black/30">
+                <h3 class="text-lg font-semibold mb-6">Volume des Transactions</h3>
+                <div id="volumeChart" class="h-[300px]"></div>
+            </div>
+
+            <!-- Hourly Analysis Chart -->
+            <div class="bg-black/20 p-6 rounded-2xl backdrop-blur-xl border border-white/10 transition-all duration-300 hover:bg-black/30">
+                <h3 class="text-lg font-semibold mb-6">Analyse Horaire</h3>
+                <div id="hourlyChart" class="h-[300px]"></div>
+            </div>
+
+            <!-- Price Trends Chart -->
+            <div class="bg-black/20 p-6 rounded-2xl backdrop-blur-xl border border-white/10 transition-all duration-300 hover:bg-black/30">
+                <h3 class="text-lg font-semibold mb-6">Tendances des Prix</h3>
+                <div id="trendChart" class="h-[300px]"></div>
+            </div>
+
+            <!-- Correlation Chart -->
+            <div class="bg-black/20 p-6 rounded-2xl backdrop-blur-xl border border-white/10 transition-all duration-300 hover:bg-black/30">
+                <h3 class="text-lg font-semibold mb-6">Corrélation Volume/Prix</h3>
+                <div id="correlationChart" class="h-[300px]"></div>
+            </div>
+        </div>
+
+        <!-- Sidebar Analytics -->
+        <div class="space-y-6">
+            <!-- Network Status -->
+            <div class="bg-black/20 p-6 rounded-2xl backdrop-blur-xl border border-white/10">
+                <h3 class="text-lg font-semibold mb-4">Statut Réseau</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-3 bg-black/30 rounded-xl">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                            <span>Ethereum</span>
+                        </div>
+                        <span class="text-green-500">Active</span>
+                    </div>
+                                           <div class="flex items-center justify-between p-3 bg-black/30 rounded-xl">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                                <span class="flex items-center space-x-2">
+                                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiI+PHBhdGggZmlsbD0iI0YzQkEyRiIgZD0iTTE2IDMyQzcuMTYzIDMyIDAgMjQuODM3IDAgMTZTNy4xNjMgMCAxNiAwczE2IDcuMTYzIDE2IDE2LTcuMTYzIDE2LTE2IDE2em0tLjY1NC03LjQyTDkuOSAxOS4xMzZsMS4zNDctMS4zNDcgNC4xIDQuMDk4IDQuMDk4LTQuMDk4IDEuMzQ3IDEuMzQ3LTUuNDQ2IDUuNDQ0em0wLTcuMzY0TDkuOSAxMS43NzJsMS4zNDctMS4zNDcgNC4xIDQuMDk4IDQuMDk4LTQuMDk4IDEuMzQ3IDEuMzQ3LTUuNDQ2IDUuNDQ0eiIvPjwvc3ZnPg==" alt="BNB" class="w-5 h-5">
+                                    <span>BNB Chain</span>
+                                </span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm text-green-500">Active</span>
+                                <span class="text-xs text-white/60">~5 Gwei</span>
+                            </div>
+                        </div>
+
+                        <!-- Solana -->
+                        <div class="flex items-center justify-between p-3 bg-black/30 rounded-xl">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                                <span class="flex items-center space-x-2">
+                                    <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiI+PHBhdGggZmlsbD0iIzAwRkZBMyIgZD0iTTE2IDMyQzcuMTYzIDMyIDAgMjQuODM3IDAgMTZTNy4xNjMgMCAxNiAwczE2IDcuMTYzIDE2IDE2LTcuMTYzIDE2LTE2IDE2em0yLjUwNC0xNi4yMzhsLTQuNzEgNC43MUw4LjIzOCAxNC45MmwxLjU3LTEuNTcgNC43MSA0LjcxIDQuNzEtNC43MSAxLjU3IDEuNTctNi4yOCA2LjI4LTEuNTctMS41Ny00LjcxLTQuNzEgMS41Ny0xLjU3IDQuNzEgNC43MSA0LjcxLTQuNzEgMS41NyAxLjU3eiIvPjwvc3ZnPg==" alt="SOL" class="w-5 h-5">
+                                    <span>Solana</span>
+                                </span>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-sm text-green-500">Active</span>
+                                <span class="text-xs text-white/60">3,945 TPS</span>
+                            </div>
+                        </div>
+
+                        <!-- Real-time Updates -->
+                        <div class="mt-4 text-xs text-white/60 flex items-center justify-center space-x-2">
+                            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                            <span>Mise à jour en temps réel</span>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- Stats Cards avec plus d'espace -->
-            <div class="content-section grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                <div class="dashboard-card p-6 stats-card">
-                    <h3 class="text-sm text-gray-400 mb-2">ETH Gas</h3>
-                    <div class="text-3xl font-bold mb-2" id="ethGas">-</div>
-                    <div class="text-sm" id="ethGasTrend">-</div>
-                </div>
-                <div class="dashboard-card p-6 stats-card">
-                    <h3 class="text-sm text-gray-400 mb-2">BNB Price</h3>
-                    <div class="text-3xl font-bold" id="bnbPrice">-</div>
-                </div>
-                <div class="dashboard-card p-6 stats-card">
-                    <h3 class="text-sm text-gray-400 mb-2">SOL TPS</h3>
-                    <div class="text-3xl font-bold" id="solTps">-</div>
-                </div>
-                <div class="dashboard-card p-6 stats-card">
-                    <h3 class="text-sm text-gray-400 mb-2">Total TPS</h3>
-                    <div class="text-3xl font-bold" id="totalTps">-</div>
-                </div>
-                <div class="dashboard-card p-6 stats-card feature-coming-soon">
-                    <h3 class="text-sm text-gray-400 mb-2">ROI Optimizer</h3>
-                    <div class="text-3xl font-bold">-</div>
-                </div>
-            </div>
+                <!-- Predictions Section -->
+                <div class="bg-black/20 p-6 rounded-2xl backdrop-blur-xl border border-white/10">
+                    <h3 class="text-lg font-semibold mb-4">Prédictions</h3>
+                    <div class="space-y-4" id="predictions">
+                        <!-- Best Times -->
+                        <div class="p-4 bg-black/30 rounded-xl">
+                            <h4 class="text-sm font-medium text-white/80 mb-2">Meilleurs Moments</h4>
+                            <div class="space-y-2">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm">ETH</span>
+                                    <span class="text-sm text-green-500">Dimanche, 03:00-05:00</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm">BSC</span>
+                                    <span class="text-sm text-green-500">Samedi, 22:00-00:00</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-sm">SOL</span>
+                                    <span class="text-sm text-green-500">Lundi, 02:00-04:00</span>
+                                </div>
+                            </div>
+                        </div>
 
-            <!-- Main Dashboard avec plus d'espace -->
-            <div class="content-section grid grid-cols-1 xl:grid-cols-3 gap-8">
-                <!-- Charts Container -->
-                <div class="xl:col-span-2 space-y-8">
-                    <div class="dashboard-card p-6">
-                        <div id="mainChart" class="h-[600px]"></div>
-                    </div>
-                    <div class="dashboard-card p-6">
-                        <div id="volumeChart" class="h-[400px]"></div>
-                    </div>
-                </div>
+                        <!-- Cost Savings -->
+                        <div class="p-4 bg-black/30 rounded-xl">
+                            <h4 class="text-sm font-medium text-white/80 mb-2">Économies Potentielles</h4>
+                            <div class="space-y-2">
+                                <div class="relative pt-1">
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-xs">ETH</span>
+                                        <span class="text-xs font-semibold">45%</span>
+                                    </div>
+                                    <div class="overflow-hidden h-2 text-xs flex rounded bg-black/30 mt-1">
+                                        <div class="w-[45%] shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-blue-500 to-purple-500"></div>
+                                    </div>
+                                </div>
+<!-- ETH -->
+<div class="relative pt-1">
+    <div class="flex items-center justify-between">
+        <span class="text-xs">ETH</span>
+        <span class="text-xs font-semibold">45%</span>
+    </div>
+    <div class="overflow-hidden h-2 text-xs flex rounded bg-black/30 mt-1">
+        <div class="w-[45%] shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-blue-500 to-purple-500"></div>
+    </div>
+</div>
 
-                <!-- Side Panel avec plus d'espace -->
-                <div class="space-y-6">
-                    <div class="dashboard-card p-6">
-                        <h2 class="text-xl font-bold mb-4">Prédictions des Frais</h2>
-                        <div id="predictions" class="space-y-4">
-                            <!-- Les prédictions seront injectées ici -->
+<!-- BSC -->
+<div class="relative pt-1">
+    <div class="flex items-center justify-between">
+        <span class="text-xs">BSC</span>
+        <span class="text-xs font-semibold">65%</span>
+    </div>
+    <div class="overflow-hidden h-2 text-xs flex rounded bg-black/30 mt-1">
+        <div class="w-[65%] shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-yellow-500 to-orange-500"></div>
+    </div>
+</div>
+
+<!-- SOL -->
+<div class="relative pt-1">
+    <div class="flex items-center justify-between">
+        <span class="text-xs">SOL</span>
+        <span class="text-xs font-semibold">85%</span>
+    </div>
+    <div class="overflow-hidden h-2 text-xs flex rounded bg-black/30 mt-1">
+        <div class="w-[85%] shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-gradient-to-r from-green-500 to-emerald-500"></div>
+    </div>
+</div>
+                            </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="dashboard-card p-6">
-                        <h2 class="text-xl font-bold mb-4">Optimisation</h2>
-                        <div id="optimization" class="space-y-4"></div>
-                    </div>
-
-                    <!-- Future Features avec plus d'espace -->
-                    <div class="space-y-4">
-                        <button class="w-full dashboard-card p-6 text-left feature-coming-soon action-button">
-                            <span class="material-icons float-right">notifications</span>
-                            <span class="text-lg font-medium">Configuration des Alertes</span>
-                        </button>
-                        <button class="w-full dashboard-card p-6 text-left feature-coming-soon action-button">
-                            <span class="material-icons float-right">sync</span>
-                            <span class="text-lg font-medium">Automatisation des Transactions</span>
-                        </button>
-                        <button class="w-full dashboard-card p-6 text-left feature-coming-soon action-button">
-                            <span class="material-icons float-right">analytics</span>
-                            <span class="text-lg font-medium">Analyse Avancée</span>
-                        </button>
-                        <button class="w-full dashboard-card p-6 text-left feature-coming-soon action-button">
-                            <span class="material-icons float-right">description</span>
-                            <span class="text-lg font-medium">Rapports Personnalisés</span>
-                        </button>
+                <!-- Best Option Box -->
+                <div class="bg-black/20 p-6 rounded-2xl backdrop-blur-xl border border-white/10">
+                    <h3 class="text-lg font-semibold mb-4">Recommandation</h3>
+                    <div class="p-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl border border-purple-500/30">
+                        <div class="flex items-center space-x-3 mb-3">
+                            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiI+PHBhdGggZmlsbD0iIzAwRkZBMyIgZD0iTTE2IDMyQzcuMTYzIDMyIDAgMjQuODM3IDAgMTZTNy4xNjMgMCAxNiAwczE2IDcuMTYzIDE2IDE2LTcuMTYzIDE2LTE2IDE2em0yLjUwNC0xNi4yMzhsLTQuNzEgNC43MUw4LjIzOCAxNC45MmwxLjU3LTEuNTcgNC43MSA0LjcxIDQuNzEtNC43MSAxLjU3IDEuNTctNi4yOCA2LjI4LTEuNTctMS41Ny00LjcxLTQuNzEgMS41Ny0xLjU3IDQuNzEgNC43MSA0LjcxLTQuNzEgMS41NyAxLjU3eiIvPjwvc3ZnPg==" alt="SOL" class="w-5 h-5">
+                            <div>
+                                <h4 class="font-medium">Solana</h4>
+                                <p class="text-sm text-white/60">Meilleur choix actuellement</p>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="flex justify-between text-sm">
+                                <span>Frais moyens:</span>
+                                <span class="font-medium">0.00025 SOL</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>Temps de transaction:</span>
+                                <span class="font-medium">400ms</span>
+                            </div>
+                            <div class="flex justify-between text-sm">
+                                <span>Économie vs ETH:</span>
+                                <span class="text-green-500 font-medium">99.9%</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-
-            <!-- Additional Features avec plus d'espace -->
-            <div class="content-section grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <button class="dashboard-card p-6 text-left feature-coming-soon">
-                    <span class="material-icons text-3xl mb-3">wallet</span>
-                    <h3 class="font-bold text-xl mb-2">Integration Wallet</h3>
-                    <p class="text-sm text-gray-400">Connectez votre wallet pour des transactions automatiques</p>
-                </button>
-                <button class="dashboard-card p-6 text-left feature-coming-soon">
-                    <span class="material-icons text-3xl mb-3">moving</span>
-                    <h3 class="font-bold text-xl mb-2">Trading Automatique</h3>
-                    <p class="text-sm text-gray-400">Automatisez vos stratégies d'arbitrage</p>
-                </button>
-                <button class="dashboard-card p-6 text-left feature-coming-soon">
-                    <span class="material-icons text-3xl mb-3">api</span>
-                    <h3 class="font-bold text-xl mb-2">API Access</h3>
-                    <p class="text-sm text-gray-400">Accédez aux données via notre API</p>
-                </button>
-                <button class="dashboard-card p-6 text-left feature-coming-soon">
-                    <span class="material-icons text-3xl mb-3">model_training</span>
-                    <h3 class="font-bold text-xl mb-2">IA Prédictive</h3>
-                    <p class="text-sm text-gray-400">Prédictions avancées par IA</p>
-                </button>
             </div>
         </div>
     </main>
 
-    <!-- Footer avec plus d'espace -->
-    <footer class="bg-gray-800 text-center p-8">
-        <p class="text-sm text-gray-400">© 2025 Blockchain Fee Analytics. Tous droits réservés.</p>
-    </footer>
-
-    <!-- JavaScript -->
-    <script>
-        function formatNumber(number, decimals = 2) {
-            if (number === undefined || number === null) return '-';
-            return Number(number).toFixed(decimals);
-        }
-    
-        function formatPercentage(number) {
-            if (number === undefined || number === null) return '-';
-            return `${number > 0 ? '+' : ''}${Number(number).toFixed(2)}%`;
-        }
-    
-        function updateStats(stats) {
-            document.getElementById('ethGas').textContent = formatNumber(stats.eth_gas);
-            document.getElementById('ethGasTrend').innerHTML = `
-                <span class="${stats.eth_gas_trend >= 0 ? 'text-green-500' : 'text-red-500'}">
-                    ${formatPercentage(stats.eth_gas_trend)}
-                </span>`;
-            document.getElementById('bnbPrice').textContent = formatNumber(stats.bnb_price);
-            document.getElementById('solTps').textContent = formatNumber(stats.sol_tps);
-            document.getElementById('totalTps').textContent = formatNumber(stats.total_tps);
-        }
-    
-        function updatePredictions(predictions) {
-            const predictionDiv = document.getElementById('predictions');
-            let html = '';
-            
-            // Section des prédictions par blockchain
-            html += '<div class="space-y-4">';
-            
-            for (const [blockchain, data] of Object.entries(predictions.predictions)) {
-                const savings = formatPercentage(data.potential_savings);
-                html += `
-                    <div class="p-4 rounded-lg bg-gray-800">
-                        <h3 class="text-lg font-semibold text-${blockchain === predictions.blockchain_comparison.cheapest_chain ? 'green' : 'white'}-500 mb-2">
-                            ${blockchain}
-                        </h3>
-                        <div class="space-y-2">
-                            <p><span class="text-gray-400">Meilleur jour:</span> ${data.best_day_name}</p>
-                            <p><span class="text-gray-400">Meilleures heures:</span> ${data.best_hours.join('h, ')}h</p>
-                            <p><span class="text-gray-400">Frais moyen:</span> ${formatNumber(data.average_fee, 8)} USD</p>
-                            <p><span class="text-gray-400">Frais minimum:</span> ${formatNumber(data.lowest_fee, 8)} USD</p>
-                            <p class="text-green-500">Économies potentielles: ${savings}</p>
-                        </div>
-                    </div>
-                `;
-            }
-            html += '</div>';
-    
-            // Section de comparaison des blockchains
-            const comparison = predictions.blockchain_comparison;
-            html += `
-                <div class="mt-6 p-4 rounded-lg bg-gray-800">
-                    <h3 class="text-lg font-semibold mb-4">Comparaison des Blockchains</h3>
-                    <div class="space-y-3">
-                        <p class="text-green-500 font-medium">
-                            💰 Blockchain la moins chère: ${comparison.cheapest_chain}
-                        </p>
-                        <div class="space-y-2">
-            `;
-    
-            for (const [chain, data] of Object.entries(comparison.comparisons)) {
-                const costRatio = formatNumber(data.relative_cost, 2);
-                const savings = formatPercentage(data.savings_vs_highest);
-                
-                html += `
-                    <div class="flex justify-between items-center p-2 ${data.is_cheapest ? 'bg-green-900' : 'bg-gray-700'} rounded">
-                        <span class="font-medium">${chain}</span>
-                        <div class="text-right">
-                            <div class="text-sm ${data.is_cheapest ? 'text-green-400' : 'text-gray-300'}">
-                                ${data.is_cheapest ? '✅ Recommandé' : `${costRatio}x plus cher`}
-                            </div>
-                            ${!data.is_cheapest ? `<div class="text-xs text-green-400">Économie vs max: ${savings}</div>` : ''}
-                        </div>
-                    </div>
-                `;
-            }
-    
-            html += `
-                        </div>
-                    </div>
-                </div>
-            `;
-    
-            predictionDiv.innerHTML = html;
-        }
-    
-        function updateData() {
-            const timeRange = document.getElementById('timeRange').value;
-            document.querySelector('.live-indicator').style.opacity = '1';
-            
-            fetch('/get_data?timeRange=' + timeRange)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.error) {
-                        console.error('Error:', data.error);
-                        return;
-                    }
-    
-                    // Mise à jour des statistiques
-                    updateStats(data.stats);
-    
-                    // Mise à jour des prédictions
-                    if (data.predictions) {
-                        updatePredictions(data.predictions);
-                    }
-    
-                    // Mise à jour des graphiques
-                    Plotly.newPlot('mainChart', JSON.parse(data.dashboard));
-    
-                    document.querySelector('.live-indicator').style.opacity = '0.7';
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    document.querySelector('.live-indicator').style.opacity = '0.3';
-                });
-        }
-    
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialisation
-            updateData();
-            
-            // Mise à jour périodique
-            const refreshRate = document.getElementById('refreshRate');
-            let intervalId = setInterval(updateData, refreshRate.value * 1000);
-            
-            // Event listeners
-            refreshRate.addEventListener('change', function() {
-                clearInterval(intervalId);
-                intervalId = setInterval(updateData, this.value * 1000);
-            });
-    
-            document.getElementById('timeRange').addEventListener('change', updateData);
-            document.getElementById('viewMode').addEventListener('change', updateData);
-    
-            // Dark mode toggle
-            const darkModeToggle = document.getElementById('darkModeToggle');
-            darkModeToggle.addEventListener('click', function() {
-                document.body.classList.toggle('light-mode');
-                this.querySelector('.material-icons').textContent = 
-                    document.body.classList.contains('light-mode') ? 'light_mode' : 'dark_mode';
-            });
-        });
-    </script>
+    {% include 'includes/footer.html' %}
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

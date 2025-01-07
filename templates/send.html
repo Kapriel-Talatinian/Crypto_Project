@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoFee Analytics - Send Multiple</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 text-white min-h-screen backdrop-blur-lg">
+    {% include 'includes/header.html' %}
+
+    <main class="container mx-auto px-6 pt-20 pb-12">
+        
+        <!-- Grid Layout pour Send Multiple -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Colonne gauche - Import CSV -->
+            <div class="bg-black/20 p-6 rounded-xl backdrop-blur-xl border border-white/10">
+                <h2 class="text-xl font-semibold mb-6">Import CSV</h2>
+                
+                <!-- CSV Upload Zone -->
+                <div class="relative group mb-6">
+                    <input type="file" id="csvFile" accept=".csv" class="hidden">
+                    <label for="csvFile" class="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-600 rounded-xl cursor-pointer hover:border-purple-500 transition-colors">
+                        <svg class="w-10 h-10 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        <p class="text-sm text-gray-400">Glissez votre fichier CSV ici ou cliquez pour sélectionner</p>
+                    </label>
+                </div>
+
+                <!-- CSV Format Info -->
+                <div class="bg-black/30 p-4 rounded-lg mb-6">
+                    <h3 class="font-medium mb-2">Format CSV requis :</h3>
+                    <code class="text-sm text-gray-400">
+                        name,address,amount,blockchain<br>
+                        John,0x123...,1.5,ETH<br>
+                        Alice,0x456...,2.0,BNB
+                    </code>
+                </div>
+
+                <!-- Preview Zone -->
+                <div id="csvPreview" class="hidden">
+                    <h3 class="font-medium mb-2">Aperçu :</h3>
+                    <div class="max-h-60 overflow-y-auto bg-black/30 rounded-lg"></div>
+                </div>
+            </div>
+
+            <!-- Colonne droite - Transaction Manual et Résumé -->
+            <div class="space-y-6">
+                <!-- Form Manuel -->
+                <div class="bg-black/20 p-6 rounded-xl backdrop-blur-xl border border-white/10">
+                    <h2 class="text-xl font-semibold mb-6">Ajout Manuel</h2>
+                    <form id="manualForm" class="space-y-4">
+                        <div>
+                            <label class="text-sm text-gray-400">Nom</label>
+                            <input type="text" class="w-full bg-black/30 border border-gray-600 rounded-lg px-4 py-2 text-white">
+                        </div>
+                        <div>
+                            <label class="text-sm text-gray-400">Adresse</label>
+                            <input type="text" class="w-full bg-black/30 border border-gray-600 rounded-lg px-4 py-2 text-white">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-sm text-gray-400">Montant</label>
+                                <input type="number" step="0.000001" class="w-full bg-black/30 border border-gray-600 rounded-lg px-4 py-2 text-white">
+                            </div>
+                            <div>
+                                <label class="text-sm text-gray-400">Blockchain</label>
+                                <select class="w-full bg-black/30 border border-gray-600 rounded-lg px-4 py-2 text-white">
+                                    <option value="ETH">Ethereum</option>
+                                    <option value="BNB">BNB Chain</option>
+                                    <option value="SOL">Solana</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full bg-purple-500 hover:bg-purple-600 py-2 rounded-lg transition-colors">
+                            Ajouter à la liste
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Transaction Summary -->
+                <div class="bg-black/20 p-6 rounded-xl backdrop-blur-xl border border-white/10">
+                    <h2 class="text-xl font-semibold mb-6">Résumé des Transactions</h2>
+                    <div class="space-y-4">
+                        <div class="flex justify-between text-gray-400">
+                            <span>Total des transactions :</span>
+                            <span id="txCount">0</span>
+                        </div>
+                        <div class="flex justify-between text-gray-400">
+                            <span>Montant total :</span>
+                            <span id="totalAmount">0.00</span>
+                        </div>
+                        <div class="flex justify-between text-gray-400">
+                            <span>Frais estimés :</span>
+                            <span id="estimatedFees">0.00</span>
+                        </div>
+                        <div class="h-px bg-gray-800"></div>
+                        <div class="flex justify-between font-medium">
+                            <span>Total Final :</span>
+                            <span id="finalTotal">0.00</span>
+                        </div>
+                        <button id="sendTransactions" disabled class="w-full bg-gradient-to-r from-purple-500 to-pink-500 py-3 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+                            Envoyer Toutes les Transactions
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Liste des transactions -->
+        <div class="mt-8 bg-black/20 p-6 rounded-xl backdrop-blur-xl border border-white/10">
+            <h2 class="text-xl font-semibold mb-6">Liste des Transactions</h2>
+            <div id="transactionsList" class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="text-left border-b border-gray-800">
+                            <th class="pb-3 font-medium text-gray-400">Nom</th>
+                            <th class="pb-3 font-medium text-gray-400">Adresse</th>
+                            <th class="pb-3 font-medium text-gray-400">Montant</th>
+                            <th class="pb-3 font-medium text-gray-400">Blockchain</th>
+                            <th class="pb-3 font-medium text-gray-400">Statut</th>
+                            <th class="pb-3 font-medium text-gray-400">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="transactionsTable">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    {% include 'includes/footer.html' %}
+
+    <script src="{{ url_for('static', filename='js/send.js') }}"></script>
+</body>
+</html>

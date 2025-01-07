@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoFee Analytics - Analyses</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="bg-gradient-to-br from-gray-900 via-blue-900 to-gray-900 text-white min-h-screen backdrop-blur-lg">
+    {% include 'includes/header.html' %}
+
+    <main class="container mx-auto px-6 pt-20 pb-12">
+        
+
+        <!-- Filtres et Période -->
+        <div class="bg-black/20 p-4 rounded-xl backdrop-blur-xl border border-white/10 mb-8">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <!-- Sélecteur de Période -->
+                <div class="flex items-center space-x-4">
+                    <button class="px-4 py-2 rounded-lg bg-purple-500/20 text-purple-300">24H</button>
+                    <button class="px-4 py-2 rounded-lg hover:bg-white/5">7J</button>
+                    <button class="px-4 py-2 rounded-lg hover:bg-white/5">30J</button>
+                    <button class="px-4 py-2 rounded-lg hover:bg-white/5">1A</button>
+                </div>
+
+                <!-- Sélecteur de Blockchain -->
+                <div class="flex items-center space-x-4">
+                    <button class="flex items-center space-x-2 px-4 py-2 rounded-lg bg-blue-500/20">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiI+PHBhdGggZmlsbD0iIzYyN0VFQSIgZD0iTTE2IDMyQzcuMTYzIDMyIDAgMjQuODM3IDAgMTZTNy4xNjMgMCAxNiAwczE2IDcuMTYzIDE2IDE2LTcuMTYzIDE2LTE2IDE2em03Ljk5NC0xNS43NDNMMTYuNDk4IDRsLTcuNDggMTIuMjU3TDE2LjQ5OCAxOS41bDcuNDk2LTMuMjQzem0tNy45OSA0LjM2M0w3Ljk5NiAxNi4yNTdsMy4zNDggNS41IDQuNjYtMS45Mzd6Ii8+PC9zdmc+" alt="ETH" class="w-4 h-4">
+                        <span>ETH</span>
+                    </button>
+                    <button class="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-white/5">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiI+PHBhdGggZmlsbD0iI0YzQkEyRiIgZD0iTTE2IDMyQzcuMTYzIDMyIDAgMjQuODM3IDAgMTZTNy4xNjMgMCAxNiAwczE2IDcuMTYzIDE2IDE2LTcuMTYzIDE2LTE2IDE2em0tLjY1NC03LjQyTDkuOSAxOS4xMzZsMS4zNDctMS4zNDcgNC4xIDQuMDk4IDQuMDk4LTQuMDk4IDEuMzQ3IDEuMzQ3LTUuNDQ2IDUuNDQ0em0wLTcuMzY0TDkuOSAxMS43NzJsMS4zNDctMS4zNDcgNC4xIDQuMDk4IDQuMDk4LTQuMDk4IDEuMzQ3IDEuMzQ3LTUuNDQ2IDUuNDQ0eiIvPjwvc3ZnPg==" alt="BNB" class="w-4 h-4">
+                        <span>BNB</span>
+                    </button>
+                    <button class="flex items-center space-x-2 px-4 py-2 rounded-lg hover:bg-white/5">
+                        <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMiIgaGVpZ2h0PSIzMiI+PHBhdGggZmlsbD0iIzAwRkZBMyIgZD0iTTE2IDMyQzcuMTYzIDMyIDAgMjQuODM3IDAgMTZTNy4xNjMgMCAxNiAwczE2IDcuMTYzIDE2IDE2LTcuMTYzIDE2LTE2IDE2em0yLjUwNC0xNi4yMzhsLTQuNzEgNC43MUw4LjIzOCAxNC45MmwxLjU3LTEuNTcgNC43MSA0LjcxIDQuNzEtNC43MSAxLjU3IDEuNTctNi4yOCA2LjI4LTEuNTctMS41Ny00LjcxLTQuNzEgMS41Ny0xLjU3IDQuNzEgNC43MSA0LjcxLTQuNzEgMS41NyAxLjU3eiIvPjwvc3ZnPg==" alt="SOL" class="w-4 h-4">
+                        <span>SOL</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grille d'analyse -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Graphiques principaux -->
+            <div class="lg:col-span-2 space-y-8">
+                <!-- Gas Price Analysis -->
+                <div class="bg-black/20 p-6 rounded-xl backdrop-blur-xl border border-white/10">
+                    <h2 class="text-xl font-semibold mb-6">Analyse des Prix Gas</h2>
+                    <div id="gasPriceChart" class="h-80"></div>
+                </div>
+
+                <!-- Transaction Volume -->
+                <div class="bg-black/20 p-6 rounded-xl backdrop-blur-xl border border-white/10">
+                    <h2 class="text-xl font-semibold mb-6">Volume des Transactions</h2>
+                    <div id="volumeChart" class="h-80"></div>
+                </div>
+
+                <!-- Gas Usage Patterns -->
+                <div class="bg-black/20 p-6 rounded-xl backdrop-blur-xl border border-white/10">
+                    <h2 class="text-xl font-semibold mb-6">Patterns d'Utilisation Gas</h2>
+                    <div id="gasPatternChart" class="h-80"></div>
+                </div>
+            </div>
+
+            <!-- Sidebar Analytics -->
+            <div class="space-y-6">
+                <!-- Current Stats -->
+                <div class="bg-black/20 p-6 rounded-xl backdrop-blur-xl border border-white/10">
+                    <h3 class="text-lg font-semibold mb-4">Statistiques Actuelles</h3>
+                    <div class="space-y-4">
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">Gas Prix Moyen</span>
+                            <span class="text-xl font-semibold">45 Gwei</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">TPS</span>
+                            <span class="text-xl font-semibold">14.5</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-gray-400">Block Time</span>
+                            <span class="text-xl font-semibold">13.2s</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Predictions -->
+                <div class="bg-black/20 p-6 rounded-xl backdrop-blur-xl border border-white/10">
+                    <h3 class="text-lg font-semibold mb-4">Prédictions</h3>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-black/30 rounded-lg">
+                            <h4 class="text-purple-400 font-medium">Prochain pic</h4>
+                            <p class="text-2xl font-semibold mt-1">19:00 UTC</p>
+                            <p class="text-sm text-gray-400">Augmentation prévue de 25%</p>
+                        </div>
+                        <div class="p-4 bg-black/30 rounded-lg">
+                            <h4 class="text-green-400 font-medium">Meilleur moment</h4>
+                            <p class="text-2xl font-semibold mt-1">04:00 UTC</p>
+                            <p class="text-sm text-gray-400">Gas estimé à 30 Gwei</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Market Analysis -->
+                <div class="bg-black/20 p-6 rounded-xl backdrop-blur-xl border border-white/10">
+                    <h3 class="text-lg font-semibold mb-4">Analyse Marché</h3>
+                    <div class="space-y-4">
+                        <div class="relative pt-1">
+                            <div class="flex mb-2 items-center justify-between">
+                                <div>
+                                    <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-purple-600 bg-purple-200">
+                                        Congestion
+                                    </span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs font-semibold inline-block text-purple-600">
+                                        60%
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-purple-200">
+                                <div style="width:60%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-purple-500"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="relative pt-1">
+                            <div class="flex mb-2 items-center justify-between">
+                                <div>
+                                    <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-green-600 bg-green-200">
+                                        Stabilité
+                                    </span>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs font-semibold inline-block text-green-600">
+                                        75%
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-green-200">
+                                <div style="width:75%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-green-500"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    {% include 'includes/footer.html' %}
+
+    <script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
+</body>
+</html>
